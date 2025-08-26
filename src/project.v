@@ -17,11 +17,27 @@ module tt_um_example (
 );
 
   // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 0;
-  assign uio_oe  = 0;
+    // Example: ou_out is the sum of ui_in and uio_in
+   wire wr_rq = ui_in[4];
+   wire rd_rq = ui_in[5];
+   reg [3:0] wdata;
+   wire [3:0] rdata;
+    
+  always @(*) begin
+      wdata[0] = ui_in[0];
+      wdata[1] = ui_in[1];
+      wdata[2] = ui_in[2];
+      wdata[3] = ui_in[3];
+end
+
+    assign uo_out[3:0] =  rdata[3:0];
+    assign uo_out[4] = full;
+    assign uo_out[5] = empty;
+
+    assign uio_out = 0;
+    assign uio_oe  = 0;
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena, clk, rst_n, 1'b0};
+    wire _unused = &{ena, ui_in[6],ui_in[7],uo_out[6],uo_out[7],uio_in[7:0]};
 
 endmodule
