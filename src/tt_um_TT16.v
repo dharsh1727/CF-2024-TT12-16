@@ -35,7 +35,37 @@ assign uo_out = {2'b00, empty, full, rdata};
     
     assign uio_out = 0;
     assign uio_oe  = 0;
-    
+
+   clock_div clk_div_inst (
+        .clk(clk),
+        .rst_n(rst_n),
+        .wclk(wclk),
+        .rclk(rclk)
+    );
+    fifo_memory #(DATA_WIDTH, ADDR_WIDTH) mem (
+        .wclk(wclk), .rclk(rclk), .waddr(waddr), .raddr(raddr),
+        .wdata(wdata), .wen(winc & ~full), .ren(rinc & ~empty), .rdata(rdata)
+    );
+
+    wptr_full #(ADDR_WIDTH) wptr_inst (
+        .wclk(wclk), .rst_n(rst_n), .winc(winc),
+        .rptr_sync(rptr_sync), .full(full),
+        .wptr(wptr), .waddr(waddr)
+    );
+
+    rptr_empty #(ADDR_WIDTH) rptr_inst (
+        .rclk(rclk), .rst_n(rst_n), .rinc(rinc),
+        .wptr_sync(wptr_sync), .empty(empty),
+        .rptr(rptr), .raddr(raddr)
+    );
+
+    two_ff_sync #(ADDR_WIDTH) sync_r2w (
+        .clk(wclk), .rst_n(rst_n), .d(rptr), .q(rptr_sync)
+    );
+
+    two_ff_sync #(ADDR_WIDTH) sync_w2r (
+        .clk(rclk), .rst_n(rst_n), .d(wptr), .q(wptr_sync)
+    );
   // List all unused inputs to prevent warnings
     wire _unused = &{ena, ui_in[6],ui_in[7],uio_in[7:0]};
 endmodule
