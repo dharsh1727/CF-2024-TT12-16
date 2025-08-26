@@ -8,21 +8,21 @@ from cocotb.triggers import ClockCycles
 @cocotb.test()
 async def test_project(dut):
   dut._log.info("Start")
-  write = dut.ui_in[2]
-  read = dut.ui_in[3]
+  write = dut.ui_in[4]
+  read = dut.ui_in[5]
   write_data = [
-    dut.ui_in[4],
-    dut.ui_in[5],
-    dut.ui_in[6],
-    dut.ui_in[7]
+    dut.ui_in[0],
+    dut.ui_in[1],
+    dut.ui_in[2],
+    dut.ui_in[3]
   ]
-  empty = dut.uo_out[1]
-  full = dut.uo_out[0]
+  empty = dut.uo_out[5]
+  full = dut.uo_out[4]
   read_data = [
+    dut.uo_out[0],
+    dut.uo_out[1],
     dut.uo_out[2],
-    dut.uo_out[3],
-    dut.uo_out[4],
-    dut.uo_out[5]
+    dut.uo_out[3]
   ]
   reset = dut.rst_n
   write.value = 0
