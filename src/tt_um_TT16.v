@@ -22,6 +22,7 @@ module tt_um_TT16 (
    wire rinc = ui_in[5];
    reg [3:0] wdata;
    wire [3:0] rdata;
+   wire full,empty;
     
   always @(*) begin
       wdata[0] = ui_in[0];
@@ -30,9 +31,7 @@ module tt_um_TT16 (
       wdata[3] = ui_in[3];
 end
 
-    assign uo_out[3:0] =  rdata[3:0];
-    assign uo_out[4] = full;
-    assign uo_out[5] = empty;
+assign uo_out = {2'b00, empty, full, rdata};
     
     assign uio_out = 0;
     assign uio_oe  = 0;
@@ -40,7 +39,7 @@ end
   // List all unused inputs to prevent warnings
     wire _unused = &{ena, ui_in[6],ui_in[7],uo_out[6],uo_out[7],uio_in[7:0]};
     
-    fifo #(DATA_WIDTH, ADDR_WIDTH) fifo_inst(
+    fifo #(4, 3) fifo_inst(
         .winc(winc), .rinc(rinc), .wclk(wclk), .rclk(rclk), .clk(clk), .rst_n(rst_n), 
         .wdata(wdata), .rdata(rdata), .full(full), .empty(empty)
     );
