@@ -43,8 +43,8 @@ pinout:
   uo[1]: "rdata[1]"
   uo[2]: "rdata[2]"
   uo[3]: "rdata[3]"
-  uo[4]: ""
-  uo[5]: ""
+  uo[4]: "full"
+  uo[5]: "empty"
   uo[6]: ""
   uo[7]: ""
 
