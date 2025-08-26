@@ -37,7 +37,7 @@ assign uo_out = {2'b00, empty, full, rdata};
     assign uio_oe  = 0;
     
   // List all unused inputs to prevent warnings
-    wire _unused = &{ena, ui_in[6],ui_in[7],uo_out[6],uo_out[7],uio_in[7:0]};
+    wire _unused = &{ena, ui_in[6],ui_in[7],uio_in[7:0]};
     
     fifo #(4, 3) fifo_inst(
         .winc(winc), .rinc(rinc), .wclk(wclk), .rclk(rclk), .clk(clk), .rst_n(rst_n), 
