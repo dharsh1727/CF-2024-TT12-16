@@ -1,7 +1,7 @@
 # Tiny Tapeout project information
 project:
   title:        "Asynchronous FIFO"      # Project title
-  author:       "Priyadharshan"      # Your name
+  author:       "Priyadharshan, Eshaanjana, Krishnashree, Vignesh "      # Your name
   discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
   description:  "write(input) and read(output) data at different clocks(wclk & rclk)"      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
