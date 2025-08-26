@@ -18,8 +18,8 @@ module tt_um_TT16 (
 
   // All output pins must be assigned. If not used, assign to 0.
     // Example: ou_out is the sum of ui_in and uio_in
-   wire wr_rq = ui_in[4];
-   wire rd_rq = ui_in[5];
+   wire winc = ui_in[4];
+   wire rinc = ui_in[5];
    reg [3:0] wdata;
    wire [3:0] rdata;
     
