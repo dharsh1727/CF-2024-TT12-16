@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+
 
 module fifo_memory #(parameter DATA_WIDTH = 4, ADDR_WIDTH = 3)(
     input wire wclk, rclk,
