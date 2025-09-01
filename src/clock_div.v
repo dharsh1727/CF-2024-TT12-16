@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+
 
 module clock_div(
     input  wire clk,   // 100 MHz
@@ -29,3 +29,4 @@ module clock_div(
     end
 
 endmodule
+
