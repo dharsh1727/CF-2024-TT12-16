@@ -52,7 +52,7 @@ end
         .rclk(rclk)
     );
     
-    fifo_memory #(DATA_WIDTH, ADDR_WIDTH) mem (
+    fifo_memory #(DATA_WIDTH, ADDR_WIDTH) fifo_inst (
         .wclk(wclk), .rclk(rclk), .waddr(waddr), .raddr(raddr),
         .wdata(wdata), .wen(winc & ~full), .ren(rinc & ~empty), .rdata(rdata)
     );
