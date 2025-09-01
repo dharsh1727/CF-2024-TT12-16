@@ -6,7 +6,6 @@ module rptr_empty #(parameter ADDR_WIDTH = 3)(
     output [ADDR_WIDTH-1:0] raddr
 );
     reg [ADDR_WIDTH:0] rbin;
-    reg [ADDR_WIDTH:0] rgray;
     wire [ADDR_WIDTH:0] rbin_next, rgray_next;
 
     assign rbin_next = rbin + {{ADDR_WIDTH{1'b0}}, (rinc & ~empty)};
