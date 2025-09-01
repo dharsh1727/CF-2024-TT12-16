@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+
 module wptr_full #(parameter ADDR_WIDTH = 3)(
     input wclk, rst_n, winc,
     input [ADDR_WIDTH:0] rptr_sync,
