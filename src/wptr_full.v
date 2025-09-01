@@ -7,10 +7,9 @@ module wptr_full #(parameter ADDR_WIDTH = 3)(
     output [ADDR_WIDTH-1:0] waddr
 );
     reg [ADDR_WIDTH:0] wbin;
-    reg [ADDR_WIDTH:0] wgray;
     wire [ADDR_WIDTH:0] wbin_next, wgray_next;
 
-    assign wbin_next = wbin + (winc & ~full);
+    assign wbin_next = wbin + {{ADDR_WIDTH{1'b0}}, (winc & ~full)};
     assign wgray_next = (wbin_next >> 1) ^ wbin_next;
 
     always @(posedge wclk or negedge rst_n) begin
