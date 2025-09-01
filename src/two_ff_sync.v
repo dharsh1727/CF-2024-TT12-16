@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+
 
 module two_ff_sync #(parameter PTR_WIDTH = 3)(
     input clk, rst_n,
