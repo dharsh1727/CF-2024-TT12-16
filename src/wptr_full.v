@@ -19,8 +19,10 @@ module wptr_full #(parameter ADDR_WIDTH = 3)(
             wbin <= wbin_next;
     end
 
-    assign waddr = wbin[ADDR_WIDTH-1:0];
-    assign wptr  = wgray_next;
+    always @(*) begin
+         waddr = wbin[ADDR_WIDTH-1:0];
+         wptr  = wgray_next;
+    end
 
     always @(posedge wclk or negedge rst_n) begin
         if (!rst_n)
