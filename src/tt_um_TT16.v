@@ -23,9 +23,9 @@ module tt_um_TT16 (
     // Example: ou_out is the sum of ui_in and uio_in
    wire wclk,rclk;
 
-   wire [ADDR_WIDTH:0] wptr, rptr;
-   wire [ADDR_WIDTH-1:0] waddr, raddr;
-   wire [ADDR_WIDTH:0] rptr_sync, wptr_sync;
+   wire [A_WIDTH:0] wptr, rptr;
+   wire [A_WIDTH-1:0] waddr, raddr;
+   wire [A_WIDTH:0] rptr_sync, wptr_sync;
     
    wire winc = ui_in[4];
    wire rinc = ui_in[5];
