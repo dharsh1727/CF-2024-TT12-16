@@ -5,8 +5,8 @@
 
 `default_nettype none
 
-parameter DATA_WIDTH = 4;
-parameter ADDR_WIDTH = 3;
+parameter D_WIDTH = 4;
+parameter A_WIDTH = 3;
 
 module tt_um_TT16 (
     input  wire [7:0] ui_in,    // Dedicated inputs
@@ -52,28 +52,28 @@ end
         .rclk(rclk)
     );
     
-    fifo_memory #(.DATA_WIDTH(DATA_WIDTH), .ADDR_WIDTH(ADDR_WIDTH)) fifo_inst (
+    fifo_memory #(.DATA_WIDTH(D_WIDTH), .ADDR_WIDTH(A_WIDTH)) fifo_inst (
         .wclk(wclk), .rclk(rclk), .waddr(waddr), .raddr(raddr),
         .wdata(wdata), .wen(winc & ~full), .ren(rinc & ~empty), .rdata(rdata)
     );
 
-    wptr_full #(.ADDR_WIDTH(ADDR_WIDTH)) wptr_inst (
+    wptr_full #(.ADDR_WIDTH(A_WIDTH)) wptr_inst (
         .wclk(wclk), .rst_n(rst_n), .winc(winc),
         .rptr_sync(rptr_sync), .full(full),
         .wptr(wptr), .waddr(waddr)
     );
 
-    rptr_empty #(.ADDR_WIDTH(ADDR_WIDTH)) rptr_inst (
+    rptr_empty #(.ADDR_WIDTH(A_WIDTH)) rptr_inst (
         .rclk(rclk), .rst_n(rst_n), .rinc(rinc),
         .wptr_sync(wptr_sync), .empty(empty),
         .rptr(rptr), .raddr(raddr)
     );
 
-    two_ff_sync #(.ADDR_WIDTH(ADDR_WIDTH)) sync_r2w (
+    two_ff_sync #(.PTR_WIDTH(A_WIDTH)) sync_r2w (
         .clk(wclk), .rst_n(rst_n), .d(rptr), .q(rptr_sync)
     );
 
-    two_ff_sync #(.ADDR_WIDTH(ADDR_WIDTH)) sync_w2r (
+    two_ff_sync #(.PTR_WIDTH(A_WIDTH)) sync_w2r (
         .clk(rclk), .rst_n(rst_n), .d(wptr), .q(wptr_sync)
     );
     
