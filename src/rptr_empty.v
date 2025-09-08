@@ -2,8 +2,8 @@ module rptr_empty #(parameter ADDR_WIDTH = 3)(
     input rclk, rst_n, rinc,
     input [ADDR_WIDTH:0] wptr_sync,
     output reg empty,
-    output [ADDR_WIDTH:0] rptr,
-    output [ADDR_WIDTH-1:0] raddr
+    output reg [ADDR_WIDTH:0] rptr,
+    output reg [ADDR_WIDTH-1:0] raddr
 );
     reg [ADDR_WIDTH:0] rbin;
     wire [ADDR_WIDTH:0] rbin_next, rgray_next;
