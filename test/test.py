@@ -21,7 +21,26 @@ async def async_fifo_gl_test(dut):
     dut.rst_n.value = 1
     await RisingEdge(dut.clk)
 
-    # Utility functions
+    # Wait for uo_out to resolve (not 'x')
+    for _ in range(20):
+        await RisingEdge(dut.clk)
+        # Check if value is resolved (no 'x' or 'z')
+        valstr = str(dut.uo_out.value)
+        if 'x' not in valstr and 'z' not in valstr:
+            break
+    else:
+        dut._log.warning(f"uo_out did not resolve after reset, current value: {valstr}")
+
+    # Now safe to assert
+    try:
+        assert (int(dut.uo_out.value) & 0b10), "FIFO not empty after reset"
+        assert not (int(dut.uo_out.value) & 0b1), "FIFO full after reset"
+    except ValueError as e:
+        dut._log.error(f"Cannot assert on unresolved uo_out: {dut.uo_out.value}")
+        raise
+
+    # Write sequence
+    test_data = [1, 2, 3, 10]
     def set_wdata(val):
         dut.ui_in.value = (dut.ui_in.value & ~0xF) | (val & 0xF)
 
@@ -40,13 +59,7 @@ async def async_fifo_gl_test(dut):
         data = int(dut.uo_out.value >> 2) & 0xF  # rdata = bits[5:2]
         return data
 
-    # FIFO should be empty after reset
-    await RisingEdge(dut.clk)
-    assert (dut.uo_out.value & 0b10), "FIFO not empty after reset"
-    assert not (dut.uo_out.value & 0b1), "FIFO full after reset"
-
     # Write sequence
-    test_data = [1, 2, 3, 10]
     for val in test_data:
         await write_word(val)
         await RisingEdge(dut.clk)
