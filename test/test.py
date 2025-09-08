@@ -3,33 +3,26 @@
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles, RisingEdge
+from cocotb.triggers import RisingEdge
 
 
 @cocotb.test()
-async def test_async_fifo(dut):
-    dut._log.info("Start Async FIFO Test")
+async def async_fifo_gl_test(dut):
+    """Gate-level friendly FIFO testbench for Tiny Tapeout"""
 
-    # Start driving top-level clk
+    # Start clock
     cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
 
     # Reset
     dut.rst_n.value = 0
     dut.ui_in.value = 0
-    await ClockCycles(dut.clk, 5)
+    await RisingEdge(dut.clk)
+    await RisingEdge(dut.clk)
     dut.rst_n.value = 1
-    await ClockCycles(dut.clk, 5)
+    await RisingEdge(dut.clk)
 
-    # Bit positions in ui_in/uo_out
-    # ui_in[3:0] = wdata
-    # ui_in[4]   = winc
-    # ui_in[5]   = rinc
-    # uo_out[0]  = full
-    # uo_out[1]  = empty
-    # uo_out[5:2]= rdata
-
+    # Utility functions
     def set_wdata(val):
-        # Mask to 4 bits
         dut.ui_in.value = (dut.ui_in.value & ~0xF) | (val & 0xF)
 
     async def write_word(val):
@@ -42,28 +35,31 @@ async def test_async_fifo(dut):
         dut.ui_in.value = dut.ui_in.value | (1 << 5)   # set rinc
         await RisingEdge(dut.clk)
         dut.ui_in.value = dut.ui_in.value & ~(1 << 5)  # clear rinc
-        await ClockCycles(dut.clk, 4)
-        return int(dut.uo_out.value >> 2) & 0xF  # rdata = bits[5:2]
+        await RisingEdge(dut.clk)
+        await RisingEdge(dut.clk)
+        data = int(dut.uo_out.value >> 2) & 0xF  # rdata = bits[5:2]
+        return data
 
-    # Assertions after reset
-    assert dut.uo_out.value & 0b10, "FIFO not empty after reset"
+    # FIFO should be empty after reset
+    await RisingEdge(dut.clk)
+    assert (dut.uo_out.value & 0b10), "FIFO not empty after reset"
     assert not (dut.uo_out.value & 0b1), "FIFO full after reset"
 
     # Write sequence
     test_data = [1, 2, 3, 10]
     for val in test_data:
         await write_word(val)
-        await ClockCycles(dut.clk, 3)
-
-    await ClockCycles(dut.clk, 10)
+        await RisingEdge(dut.clk)
 
     # Read back sequence
     read_back = []
     for _ in test_data:
         val = await read_word()
         read_back.append(val)
+        await RisingEdge(dut.clk)
 
-    dut._log.info(f"Read Data: {read_back}")
+    # Log results
+    dut._log.info(f"GL Read Data: {read_back}")
     assert read_back == test_data, f"Expected {test_data}, got {read_back}"
 
-    dut._log.info("Async FIFO Test Passed ✅")
+    dut._log.info("Async FIFO GL Test Passed ✅")
