@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: © 2024 Tiny Tapeout
-# SPDX-License-Identifier: Apache-2.0
-
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
@@ -21,23 +18,20 @@ async def async_fifo_gl_test(dut):
     dut.rst_n.value = 1
     await RisingEdge(dut.clk)
 
-    # Wait for uo_out to resolve (not 'x')
+    # Wait for uo_out to resolve (not 'x' or 'z')
     for _ in range(20):
         await RisingEdge(dut.clk)
-        # Check if value is resolved (no 'x' or 'z')
         valstr = str(dut.uo_out.value)
         if 'x' not in valstr and 'z' not in valstr:
             break
     else:
         dut._log.warning(f"uo_out did not resolve after reset, current value: {valstr}")
+        raise RuntimeError("uo_out did not resolve after reset")
 
-    # Now safe to assert
-    try:
-        assert (int(dut.uo_out.value) & 0b10), "FIFO not empty after reset"
-        assert not (int(dut.uo_out.value) & 0b1), "FIFO full after reset"
-    except ValueError as e:
-        dut._log.error(f"Cannot assert on unresolved uo_out: {dut.uo_out.value}")
-        raise
+    # Update: Check correct bits for 'empty' and 'full' after reset
+    uo_val = int(dut.uo_out.value)
+    assert (uo_val & (1 << 5)), "FIFO not empty after reset"  # bit 5: empty
+    assert not (uo_val & (1 << 4)), "FIFO full after reset"   # bit 4: full
 
     # Write sequence
     test_data = [1, 2, 3, 10]
@@ -56,7 +50,7 @@ async def async_fifo_gl_test(dut):
         dut.ui_in.value = dut.ui_in.value & ~(1 << 5)  # clear rinc
         await RisingEdge(dut.clk)
         await RisingEdge(dut.clk)
-        data = int(dut.uo_out.value >> 2) & 0xF  # rdata = bits[5:2]
+        data = int(dut.uo_out.value) & 0xF  # rdata = bits[3:0]
         return data
 
     # Write sequence
