@@ -1,5 +1,6 @@
 module fifo_memory #(parameter DATA_WIDTH = 4, ADDR_WIDTH = 3)(
     input wire wclk, rclk,
+    input wire rst_n,
     input wire [ADDR_WIDTH-1:0] waddr, raddr,
     input wire [DATA_WIDTH-1:0] wdata,
     input wire wen, ren,
