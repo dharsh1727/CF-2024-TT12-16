@@ -17,15 +17,15 @@ module rptr_empty #(parameter ADDR_WIDTH = 3)(
         else
             rbin <= rbin_next;
     end
-    always @(*) begin
-           raddr = rbin[ADDR_WIDTH-1:0];
-           rptr  = rgray_next;
-    end 
     
     always @(posedge rclk or negedge rst_n) begin
         if (!rst_n)
             empty <= 1'b1;
+            rptr  <= 0;
+            raddr <= 0;
         else
             empty <= (rgray_next == wptr_sync);
+            rptr  <= rgray_next;
+            raddr <= rbin[ADDR_WIDTH-1:0];
     end
 endmodule
