@@ -6,7 +6,6 @@ from cocotb.triggers import RisingEdge
 async def async_fifo_gl_test(dut):
     """Gate-level friendly FIFO testbench for Tiny Tapeout"""
 
-    # Start clock
     cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
 
     # Reset
@@ -40,13 +39,15 @@ async def async_fifo_gl_test(dut):
     async def write_word(val):
         set_wdata(val)
         dut.ui_in.value = dut.ui_in.value | (1 << 4)   # set winc
-        await RisingEdge(dut.clk)
+        for _ in range(4):                             # hold winc for 4 cycles
+            await RisingEdge(dut.clk)
         dut.ui_in.value = dut.ui_in.value & ~(1 << 4)  # clear winc
         await RisingEdge(dut.clk)
 
     async def read_word():
         dut.ui_in.value = dut.ui_in.value | (1 << 5)   # set rinc
-        await RisingEdge(dut.clk)
+        for _ in range(4):                             # hold rinc for 4 cycles
+            await RisingEdge(dut.clk)
         dut.ui_in.value = dut.ui_in.value & ~(1 << 5)  # clear rinc
         await RisingEdge(dut.clk)
         data = int(dut.uo_out.value) & 0xF
