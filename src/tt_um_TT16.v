@@ -60,6 +60,7 @@ module tt_um_TT16 (
     fifo_memory #(.DATA_WIDTH(D_WIDTH), .ADDR_WIDTH(A_WIDTH)) fifo_inst (
         .wclk(wclk),
         .rclk(rclk),
+        .rst_n(rst_n),
         .waddr(waddr),
         .raddr(raddr),
         .wdata(wdata),
