@@ -17,7 +17,7 @@ module rptr_empty #(parameter ADDR_WIDTH = 3)(
         else
             rbin <= rbin_next;
     end
-    always @(posedge rclk or negedge rst_n) begin
+    always @(*) begin
            raddr <= rbin[ADDR_WIDTH-1:0];
            rptr  <= rgray_next;
     end 
