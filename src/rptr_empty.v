@@ -12,20 +12,16 @@ module rptr_empty #(parameter ADDR_WIDTH = 3)(
     assign rgray_next = (rbin_next >> 1) ^ rbin_next;
  
     always @(posedge rclk or negedge rst_n) begin
-        if (!rst_n)
-            rbin <= 0;
-        else
-            rbin <= rbin_next;
-    end
-    
-    always @(posedge rclk or negedge rst_n) begin
-        if (!rst_n)
+        if (!rst_n) begin
+            rbin  <= 0;
             empty <= 1'b1;
             rptr  <= 0;
             raddr <= 0;
-        else
+        end else begin
+            rbin  <= rbin_next;
             empty <= (rgray_next == wptr_sync);
             rptr  <= rgray_next;
-            raddr <= rbin[ADDR_WIDTH-1:0];
+            raddr <= rbin_next[ADDR_WIDTH-1:0];
+        end
     end
 endmodule
