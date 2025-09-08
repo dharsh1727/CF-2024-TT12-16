@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: © 2024 Tiny Tapeout
-# SPDX-License-Identifier: Apache-2.0
-
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, RisingEdge
@@ -10,6 +7,9 @@ from cocotb.triggers import ClockCycles, RisingEdge
 async def test_async_fifo(dut):
     dut._log.info("Start Async FIFO Test")
 
+    # Start driving top-level clk
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+
     # Reset
     dut.rst_n.value = 0
     dut.ui_in.value = 0
@@ -17,56 +17,50 @@ async def test_async_fifo(dut):
     dut.rst_n.value = 1
     await ClockCycles(dut.clk, 5)
 
-    # Map UI/Outputs
-    # ui_in[0..3] = wdata bits
-    # ui_in[4]    = winc
-    # ui_in[5]    = rinc
-    # uo_out[0]   = full
-    # uo_out[1]   = empty
-    # uo_out[5:2] = rdata[3:0]
+    # Bit positions in ui_in/uo_out
+    # ui_in[3:0] = wdata
+    # ui_in[4]   = winc
+    # ui_in[5]   = rinc
+    # uo_out[0]  = full
+    # uo_out[1]  = empty
+    # uo_out[5:2]= rdata
 
     def set_wdata(val):
-        for i in range(4):
-            dut.ui_in[i].value = (val >> i) & 1
+        # Mask to 4 bits
+        dut.ui_in.value = (dut.ui_in.value & ~0xF) | (val & 0xF)
 
     async def write_word(val):
         set_wdata(val)
-        dut.ui_in[4].value = 1  # winc
+        dut.ui_in.value = dut.ui_in.value | (1 << 4)   # set winc
         await RisingEdge(dut.clk)
-        dut.ui_in[4].value = 0
+        dut.ui_in.value = dut.ui_in.value & ~(1 << 4)  # clear winc
 
     async def read_word():
-        dut.ui_in[5].value = 1  # rinc
+        dut.ui_in.value = dut.ui_in.value | (1 << 5)   # set rinc
         await RisingEdge(dut.clk)
-        dut.ui_in[5].value = 0
-        # wait for rclk domain to capture
+        dut.ui_in.value = dut.ui_in.value & ~(1 << 5)  # clear rinc
         await ClockCycles(dut.clk, 4)
-        data_bits = [int(dut.uo_out[i].value) for i in range(2, 6)]
-        val = sum(b << (i) for i, b in enumerate(data_bits))
-        return val
+        return int(dut.uo_out.value >> 2) & 0xF  # rdata = bits[5:2]
 
-    # Initially FIFO should be empty
-    assert dut.uo_out[1].value == 1, "FIFO not empty after reset"
-    assert dut.uo_out[0].value == 0, "FIFO full after reset"
+    # Assertions after reset
+    assert dut.uo_out.value & 0b10, "FIFO not empty after reset"
+    assert not (dut.uo_out.value & 0b1), "FIFO full after reset"
 
-    # Write some data
-    dut._log.info("Writing data into FIFO")
-    test_data = [0x1, 0x2, 0x3, 0xA]
+    # Write sequence
+    test_data = [1, 2, 3, 10]
     for val in test_data:
         await write_word(val)
-        await ClockCycles(dut.clk, 3)  # let wclk domain latch
+        await ClockCycles(dut.clk, 3)
 
-    # Small delay for sync
     await ClockCycles(dut.clk, 10)
 
-    # Read back data
-    dut._log.info("Reading data from FIFO")
+    # Read back sequence
     read_back = []
     for _ in test_data:
         val = await read_word()
         read_back.append(val)
 
     dut._log.info(f"Read Data: {read_back}")
-    assert read_back == test_data, f"Mismatch: expected {test_data}, got {read_back}"
+    assert read_back == test_data, f"Expected {test_data}, got {read_back}"
 
     dut._log.info("Async FIFO Test Passed ✅")
