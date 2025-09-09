@@ -31,16 +31,17 @@ async def test_fifo(dut):
     dut.ui_in[4].value = 0                   # stop write
     dut._log.info(f"Wrote {hex(test_val)} into FIFO")
 
-    # ---- Test 2: Read the value ----
-    dut.ui_in[5].value = 1                   # rinc = 1
-    await ClockCycles(dut.clk, 20)           # wait for read clock cycles
-    dut.ui_in[5].value = 0                   # stop read
-    read_val = int(dut.uo_out.value & 0xF)   # rdata = uo_out[3:0]
-    dut._log.info(f"Read {hex(read_val)} from FIFO")
-    assert read_val == test_val, f"FIFO mismatch! wrote {hex(test_val)}, got {hex(read_val)}"
+   # ---- Test 2 & 3 combined: Read and check empty ----
+   dut.ui_in.value = (0b0010 << 4)  # set rinc = 1 (bit[5])
+   await ClockCycles(dut.clk, 2)    # let read happen
+   dut.ui_in.value = 0              # stop read
 
-    # ---- Test 3: Check empty flag ----
-    await ClockCycles(dut.clk, 60)
-    empty_flag = int((dut.uo_out.value >> 5) & 1)
+   data_out = int(dut.uo_out.value & 0xF)   # rdata = uo_out[3:0]
+   dut._log.info(f"Read {hex(data_out)} from FIFO")
+   assert data_out == test_val, f"FIFO mismatch! wrote {hex(test_val)}, got {hex(data_out)}"
+
+   # Wait for empty flag update
+    await ClockCycles(dut.clk, 5)
+    empty_flag = (int(dut.uo_out.value) >> 5) & 1
     assert empty_flag == 1, "FIFO should be empty after reading"
     dut._log.info("FIFO empty flag correctly asserted after read")
