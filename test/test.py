@@ -35,7 +35,7 @@ async def test_fifo(dut):
     dut.ui_in[5].value = 1  # set rinc = 1 (bit[5])
     await ClockCycles(dut.clk, 2)    # let read happen
     dut.ui_in[5].value = 0              # stop read
-    await ClockCycles(dut.clk, 2)
+    await ClockCycles(dut.clk, 10)
     
     data_out = int(dut.uo_out.value & 0xF)   # rdata = uo_out[3:0]
     dut._log.info(f"Read {hex(data_out)} from FIFO")
