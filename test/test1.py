@@ -37,15 +37,17 @@ async def test_fifo(dut):
     read_vals = []
     for _ in range(8):
         dut.ui_in[5].value = 1  # rinc
-        await ClockCycles(dut.clk, 20)
+        await ClockCycles(dut.clk, 10)
         dut.ui_in[5].value = 0
-        await ClockCycles(dut.clk, 60)
+        await ClockCycles(dut.clk, 5)
         read_val = int(dut.uo_out.value) & 0xF
         read_vals.append(read_val)
         dut._log.info(f"Read {bin(read_val)} from FIFO")
 
     # ---- Check correctness ----
     assert read_vals == test_vals, f"FIFO mismatch! wrote {test_vals}, got {read_vals}"
+    dut._log.info(f"wptr={int(dut.wptr)}, rptr={int(dut.rptr)}")
+
 
     # ---- Check empty ----
     await ClockCycles(dut.clk, 30)
