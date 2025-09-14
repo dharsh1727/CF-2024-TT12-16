@@ -8,7 +8,7 @@ module rptr_empty #(parameter ADDR_WIDTH = 3)(
     reg [ADDR_WIDTH:0] rbin;
     wire [ADDR_WIDTH:0] rbin_next, rgray_next;
 
-    assign rbin_next = rbin + {{ADDR_WIDTH{1'b0}}, (rinc & ~empty)};
+    assign rbin_next = rbin + ((rinc & ~empty) ? 1 : 0);
     assign rgray_next = (rbin_next >> 1) ^ rbin_next;
  
     always @(posedge rclk or negedge rst_n) begin
