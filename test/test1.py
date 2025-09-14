@@ -7,7 +7,7 @@ from cocotb.triggers import ClockCycles
 async def test_fifo(dut):
     dut._log.info("Start FIFO Test for tt_um_TT16")
 
-    # Start master clock
+    # Start master clock (100 MHz)
     clock = Clock(dut.clk, 10, units="ns")
     cocotb.start_soon(clock.start())
 
@@ -25,21 +25,21 @@ async def test_fifo(dut):
     for val in test_vals:
         dut.ui_in.value = val & 0xF
         dut.ui_in[4].value = 1  # winc
-        await ClockCycles(dut.clk, 5)
+        await ClockCycles(dut.clk, 20)  # cover wclk period (20 ns)
         dut.ui_in[4].value = 0
         dut._log.info(f"Wrote {bin(val)} into FIFO")
-        await ClockCycles(dut.clk, 5)  # gap between writes
+        await ClockCycles(dut.clk, 20)  # gap before next write
 
     # ---- Wait for data to propagate ----
-    await ClockCycles(dut.clk, 100)
+    await ClockCycles(dut.clk, 200)
 
     # ---- Read 8 values ----
     read_vals = []
     for _ in range(8):
         dut.ui_in[5].value = 1  # rinc
-        await ClockCycles(dut.clk, 10)
+        await ClockCycles(dut.clk, 60)  # cover rclk period (60 ns)
         dut.ui_in[5].value = 0
-        await ClockCycles(dut.clk, 5)
+        await ClockCycles(dut.clk, 60)  # gap before next read
         read_val = int(dut.uo_out.value) & 0xF
         read_vals.append(read_val)
         dut._log.info(f"Read {bin(read_val)} from FIFO")
@@ -48,7 +48,7 @@ async def test_fifo(dut):
     assert read_vals == test_vals, f"FIFO mismatch! wrote {test_vals}, got {read_vals}"
 
     # ---- Check empty ----
-    await ClockCycles(dut.clk, 30)
+    await ClockCycles(dut.clk, 100)
     empty_flag = (int(dut.uo_out.value) >> 5) & 1
     dut._log.info(f"Empty flag = {empty_flag}")
     assert empty_flag == 1, "FIFO should be empty after reading"
