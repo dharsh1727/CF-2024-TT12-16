@@ -28,6 +28,7 @@ async def test_fifo(dut):
         await ClockCycles(dut.clk, 5)
         dut.ui_in[4].value = 0
         dut._log.info(f"Wrote {bin(val)} into FIFO")
+        dut._log.info(f"wptr={int(dut.wptr)}, rptr={int(dut.rptr)}")
         await ClockCycles(dut.clk, 5)  # gap between writes
 
     # ---- Wait for data to propagate ----
@@ -43,11 +44,10 @@ async def test_fifo(dut):
         read_val = int(dut.uo_out.value) & 0xF
         read_vals.append(read_val)
         dut._log.info(f"Read {bin(read_val)} from FIFO")
-
+        dut._log.info(f"wptr={int(dut.wptr)}, rptr={int(dut.rptr)}")
+        
     # ---- Check correctness ----
     assert read_vals == test_vals, f"FIFO mismatch! wrote {test_vals}, got {read_vals}"
-    dut._log.info(f"wptr={int(dut.wptr)}, rptr={int(dut.rptr)}")
-
 
     # ---- Check empty ----
     await ClockCycles(dut.clk, 30)
