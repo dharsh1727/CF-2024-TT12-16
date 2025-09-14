@@ -53,4 +53,4 @@ async def test_fifo(dut):
     dut._log.info(f"Empty flag = {empty_flag}")
     assert empty_flag == 1, "FIFO should be empty after reading"
 
-somewhat right
+
