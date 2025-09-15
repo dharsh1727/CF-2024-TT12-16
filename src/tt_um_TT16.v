@@ -49,7 +49,7 @@ module tt_um_TT16 (
         end
     end
 
-    assign uio_out = 8'b0;
+    assign uio_out[7:2] = 0;
     assign uio_oe  = 8'b0;
 
     clock_div clk_div_inst (
