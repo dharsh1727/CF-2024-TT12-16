@@ -9,20 +9,16 @@ module fifo_memory #(parameter DATA_WIDTH = 4, ADDR_WIDTH = 3)(
     reg [3:0] mem [(2**ADDR_WIDTH)-1:0];
 
     // Write with reset: clear memory on rst_n
-    integer i;
-    always @(posedge wclk or negedge rst_n) begin
-        if (!rst_n) begin
-            // No action: memory contents undefined after reset
-        end else if (wen) begin
+
+    always @(posedge wclk) begin
+        if (wen) begin
             mem[waddr] <= wdata;
         end
     end
 
     // Read with reset: clear rdata on rst_n
-    always @(posedge rclk or negedge rst_n) begin
-        if (!rst_n) begin
-            rdata <= {DATA_WIDTH{1'b0}};
-        end else if (ren) begin
+    always @(posedge rclk) begin
+        if (ren) begin
             rdata <= mem[raddr];
         end 
     end
