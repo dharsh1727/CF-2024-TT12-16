@@ -33,17 +33,22 @@ async def test_fifo(dut):
     # ---- Wait for data to propagate ----
     await ClockCycles(dut.clk, 100)
 
-    # ---- Read 8 values ----
+    # ---- Read until we collect all 8 values ----
     read_vals = []
-    for _ in range(8):
+    max_reads = 50  # safety guard to avoid infinite loop
+    while len(read_vals) < len(test_vals) and max_reads > 0:
         dut.ui_in[5].value = 1  # rinc
         await ClockCycles(dut.clk, 10)
         dut.ui_in[5].value = 0
         await ClockCycles(dut.clk, 5)
+
         read_val = int(dut.uo_out.value) & 0xF
-        read_vals.append(read_val)
-        dut._log.info(f"Read {bin(read_val)} from FIFO")
-        
+        if len(read_vals) < len(test_vals):
+            read_vals.append(read_val)
+            dut._log.info(f"Read {bin(read_val)} from FIFO")
+
+        max_reads -= 1
+
     # ---- Check correctness ----
     assert read_vals == test_vals, f"FIFO mismatch! wrote {test_vals}, got {read_vals}"
 
