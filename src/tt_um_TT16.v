@@ -20,6 +20,8 @@ module tt_um_TT16 (
 );
 
     wire wclk, rclk;
+    assign uio_out[0] = wclk;
+    assign uio_out[1] = rclk;
     wire [A_WIDTH:0] wptr, rptr;
     wire [A_WIDTH-1:0] waddr, raddr;
     wire [A_WIDTH:0] rptr_sync, wptr_sync;
