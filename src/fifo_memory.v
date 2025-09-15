@@ -12,8 +12,7 @@ module fifo_memory #(parameter DATA_WIDTH = 4, ADDR_WIDTH = 3)(
     integer i;
     always @(posedge wclk or negedge rst_n) begin
         if (!rst_n) begin
-            for (i = 0; i < (2**ADDR_WIDTH); i = i + 1)
-                mem[i] <= 0;
+            // No action: memory contents undefined after reset
         end else if (wen) begin
             mem[waddr] <= wdata;
         end
@@ -22,7 +21,7 @@ module fifo_memory #(parameter DATA_WIDTH = 4, ADDR_WIDTH = 3)(
     // Read with reset: clear rdata on rst_n
     always @(posedge rclk or negedge rst_n) begin
         if (!rst_n) begin
-            rdata <= 0;
+            rdata <= {DATA_WIDTH{1'b0}};
         end else if (ren) begin
             rdata <= mem[raddr];
         end 
