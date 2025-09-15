@@ -3,7 +3,7 @@ module wptr_full #(parameter ADDR_WIDTH = 3)(
     input [ADDR_WIDTH:0] rptr_sync,
     output reg full,
     output reg [ADDR_WIDTH:0] wptr,
-    output reg [ADDR_WIDTH-1:0] waddr
+    output  [ADDR_WIDTH-1:0] waddr
 );
     reg [ADDR_WIDTH:0] wbin;
     wire [ADDR_WIDTH:0] wbin_next, wgray_next;
