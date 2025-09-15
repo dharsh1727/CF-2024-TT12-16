@@ -8,6 +8,7 @@ module wptr_full #(parameter ADDR_WIDTH = 3)(
     reg [ADDR_WIDTH:0] wbin;
     wire [ADDR_WIDTH:0] wbin_next, wgray_next;
 
+    assign waddr = wbin_next[ADDR_WIDTH-1:0];
     assign wbin_next = wbin + ((winc & ~full) ? 1 : 0);
     assign wgray_next = (wbin_next >> 1) ^ wbin_next;
 
@@ -16,12 +17,12 @@ module wptr_full #(parameter ADDR_WIDTH = 3)(
             wbin  <= 0;
             full  <= 1'b0;
             wptr  <= 0;
-            waddr <= 0;
+            
         end else begin
             wbin  <= wbin_next;
             full  <= (wgray_next == {~rptr_sync[ADDR_WIDTH:ADDR_WIDTH-1], rptr_sync[ADDR_WIDTH-2:0]});
             wptr  <= wgray_next;
-            waddr <= wbin_next[ADDR_WIDTH-1:0];
+            
         end
     end
 endmodule
